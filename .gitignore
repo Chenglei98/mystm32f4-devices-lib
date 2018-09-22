@@ -1,0 +1,11 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+/obj/
+/DebugConfig/
+*.uvoptx
+*.scvd
+*.bat
+*.Miaow
