@@ -36,7 +36,7 @@
 /** @addtogroup TB6612FNG
  * @{
  */
- 
+
 /**
  * @brief Initialize TB6612FNG for all motors
  */

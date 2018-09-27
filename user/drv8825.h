@@ -17,19 +17,17 @@
  *
  *           Steps to modify PWMx where x can be (A...D):
  *              1.modify GPIO port, pin, clk, pinsource, af
- *              2.modify 
- *                TB6612FNG_PWM_TIM, TB6612FNG_PWM_TIM_CLK, 
- *                TB6612FNG_PWM_TIM_ARR, TB6612FNG_PWMx_TIM_OC_FUNC, 
- *                TB6612FNG_PWMx_TIM_OC_PRELOAD_FUNC, TB6612FNG_PWMx_TIM_CHANNEL, 
- *                TB6612FNG_PWMx_TIM_CCR
+ *              2.modify definitions in @ref DRV8825_pwm_define
  *                to choose timer and channel corresponding to GPIO
+ *              3.modify definitions in @ref DRV8825_pwm_define
+ *                to select slave and master
  *
  *           Recommanded pin connection:
- *             ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
- *             ©¦     STP©À©¤©¤©¤©¤©¤©ÈPA2        ©¦
- *             ©¦     DIR©À©¤©¤©¤©¤©¤©ÈPC5        ©¦
- *             ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
- *              DRV8825        STM32F407
+ *             ©°©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©´
+ *             ©¦ STP©À©¤©¤©¤©¤©¤©ÈPA2  ©¦
+ *             ©¦ DIR©À©¤©¤©¤©¤©¤©ÈPC5  ©¦
+ *             ©¸©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¼
+ *             DRV8825    STM32F407
  *
  *          The source code repository is available on GitHub:
  *              https://github.com/3703781/mystm32f4-devices-lib
@@ -78,18 +76,26 @@
  * @defgroup DRV8825_pwm_define
  * @{
  */
-//PWM for general
+//timer for pwm - slave
 #define DRV8825_STP_TIM_CLK_FUNC            RCC_APB2PeriphClockCmd
 #define DRV8825_STP_TIM_CLK                 RCC_APB2Periph_TIM9
 #define DRV8825_STP_TIM                     TIM9
-#define DRV8825_STP_TIM_ARR                 (DRV8825_STP_TIM->ARR)
-
-//timer OC
+//timer oc
 #define DRV8825_STP_TIM_OC_FUNC             TIM_OC1Init
 #define DRV8825_STP_TIM_OC_PRELOAD_FUNC     TIM_OC1PreloadConfig
 #define DRV8825_STP_TIM_CHANNEL             TIM_Channel_1
-#define DRV8825_STP_TIM_CCR                 (DRV8825_STP_TIM->CCR1)
+//
+#define DRV8825_STP_TIM_TRIG_SOURCE         TIM_TS_ITR2
 
+
+#define DRV8825_CTRL_TIM_CLK_FUNC           RCC_APB2PeriphClockCmd
+#define DRV8825_CTRL_TIM_CLK                RCC_APB2Periph_TIM10
+#define DRV8825_CTRL_TIM                    TIM10
+
+#define DRV8825_CTRL_TIM_OC_FUNC            TIM_OC1Init
+#define DRV8825_CTRL_TIM_OC_PRELOAD_FUNC    TIM_OC1PreloadConfig
+#define DRV8825_CTRL_TIM_CHANNEL            TIM_Channel_1
+#define DRV8825_CTRL_TIM_TRGO_SOURCE        TIM_TRGOSource_OC1Ref
 /**
  * @}
  */
@@ -97,7 +103,7 @@
 
 void DRV8825_Init(void);
 extern inline void DRV8825_Stop(void);
-void DRV8825_Run(float speed, uint16_t angle);
+void DRV8825_Run(float speed, float angle);
 
 /**
  * @}
