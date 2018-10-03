@@ -16,10 +16,23 @@
 #include "stm32f4xx.h"
 #include "hallencoder.h"
 #include "tb6612fng.h"
-#include "mpu9250.h"
 #include "control.h"
 #include "delay.h"
 #include "stdio.h"/////////////
+
+#ifdef CONTROL_USE_MPU6050
+    #include "mpu6050.h"
+    #define MPU_InitWithDmp MPU6050_InitWithDmp
+    #define MPU_GetDmpData MPU6050_GetDmpData
+#elif defined CONTROL_USE_MPU9250
+    #include "mpu9250.h"
+    #define MPU_InitWithDmp MPU9250_InitWithDmp
+    #define MPU_GetDmpData MPU9250_GetDmpData
+#endif
+#if !defined CONTROL_USE_MPU6050 && !defined CONTROL_USE_MPU9250
+#error  Which gyro are you using? Define CONTROL_USE_MPUxxxx in your options.
+#endif
+
 #ifdef CONTROL_DEBUG
 #include "stdio.h"
 #endif
@@ -72,17 +85,20 @@ void CONTROL_Init()
     printf("tb6612fng init...");
     #endif
 
-    TB6612FNG_Init();
+    //TB6612FNG_Init();
     #ifdef CONTROL_DEBUG
     printf("ok\r\nhallencode init...");
     #endif
-    HALLENCODER_Init();
+    //HALLENCODER_Init();
     #ifdef CONTROL_DEBUG
     printf("ok\r\nmpu init...");
     #endif
-    int32_t code = (int32_t)MPU9250_InitWithDmp(CONTROL_Refresh);
+    int32_t code = (int32_t)MPU_InitWithDmp(CONTROL_Refresh);
     #ifdef CONTROL_DEBUG
-    printf("%d\r\n", code);
+    if(!code)
+        printf("OK\r\n");
+    else
+        printf("error:%d\r\n", code);
     #endif
     /*
     //Sample rate T = 50ms
@@ -108,7 +124,7 @@ void CONTROL_Refresh()
 {
     static uint32_t i = 0;
     float pitch, roll, yaw;//Euler angle of the car
-    if(!MPU9250_GetDmpData(&pitch, &roll, &yaw))
+    if(!MPU_GetDmpData(&pitch, &roll, &yaw))
         actualAngle = (int32_t)yaw;
 
     if((++i) == 10)
@@ -122,8 +138,9 @@ void CONTROL_Refresh()
         TB6612FNG_Run(CONTROL_MOTOR_RIGHT, outputSpeed[1]);//motor C, D --> right motors
         #ifdef CONTROL_DEBUG
         //printf("t=%d,%d,o=%d,%d,a=%d,%d\r\n", targetSpeed[0], targetSpeed[1], outputSpeed[0], outputSpeed[1], actualSpeed[0], actualSpeed[1]);
-        printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
+        //printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
         //printf("%d,%f\r\n", targetAngle, yaw);
+        printf("%f,%f,%f\r\n", pitch, roll, yaw);
         #endif
         switch(CONTROL_State)
         {

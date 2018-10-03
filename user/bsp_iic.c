@@ -14,8 +14,8 @@
  *              0.1.0
  *          Recommanded pin connection:
  *          ┌────────┐     ┌────────┐
- *          │     PE4├─────┤SCL     │
- *          │     PE5├─────┤SDA     │
+ *          │     PB8├─────┤SCL     │
+ *          │     PB9├─────┤SDA     │
  *          └────────┘     └────────┘
  *          STM32F407        slave
  *          
@@ -31,11 +31,7 @@
 #include "bsp_iic.h"
 
 static void IIC_DelayUs(uint32_t us);
-static void IIC_Start(void);
-static void IIC_Stop(void);
-static uint8_t IIC_WaitAck(void);
-static void IIC_Ack(void);
-static void IIC_NAck(void);
+
 
 /**
  * @brief 不准的微秒级延时函数
@@ -65,7 +61,7 @@ void IIC_Init()
     IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1
 }
 /**
- * @brief 产生IIC起始信号
+ * @brief 产生起始信号
  */
 static void IIC_Start()
 {
@@ -78,7 +74,7 @@ static void IIC_Start()
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//钳住I2C总线，准备发送或接收数据 
 }      
 /**
- * @brief 产生IIC停止信号
+ * @brief 产生停止信号
  */
 static void IIC_Stop()
 {
@@ -86,15 +82,15 @@ static void IIC_Stop()
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//IIC_SCL=0
     IIC_SDA_PORT->BSRRH = IIC_SDA_PIN;//IIC_SDA=0 STOP:when CLK is high DATA change form low to high
     IIC_DelayUs(4);
-    IIC_SCL_PORT->BSRRL = IIC_SCL_PIN;//IIC_SCL=1;
-    IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1IIC_SDA=1 发送I2C总线结束信号
+    IIC_SCL_PORT->BSRRL = IIC_SCL_PIN;//IIC_SCL=1
+    IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1 发送I2C总线结束信号
     IIC_DelayUs(4);                                   
 }
 /**
  * @brief 等待应答信号
  * @return 1-接收应答失败; 0-接收应答成功
  */
-static uint8_t IIC_WaitAck()
+uint8_t IIC_WaitAck()
 {
     uint8_t ucErrTime=0;
     IIC_In();//SDA设置为输入  
@@ -115,7 +111,7 @@ static uint8_t IIC_WaitAck()
     return 0;  
 } 
 /**
- * @brief 产生ACK应答
+ * @brief 产生应答信号
  */
 static void IIC_Ack()
 {
@@ -149,7 +145,7 @@ void IIC_WriteByte(uint8_t data)
     uint8_t i;   
     IIC_Out();         
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//IIC_SCL=0 拉低时钟开始数据传输
-    for(i = 0; i<8;i++)
+    for(i = 0; i < 8; i++)
     {            
         if((data & 0x80) >> 7)
             IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1

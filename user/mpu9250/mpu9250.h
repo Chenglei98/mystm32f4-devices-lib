@@ -12,9 +12,9 @@
  * @note
  *          Recommanded pin connection:
  *          ┌────────┐     ┌────────┐
- *          │     PE4├─────┤SCL  XDA├───X
- *          │     PE5├─────┤SDA  AD0├───GND
- *          │     PE6├─────┤INT  XCL├───X
+ *          │     PB8├─────┤SCL  XDA├───X
+ *          │     PB9├─────┤SDA  AD0├───GND
+ *          │     PD8├─────┤INT  XCL├───X
  *          └────────┘     └────────┘          
  *          STM32F407       mpu9250
  *          
@@ -38,12 +38,12 @@
 /**
  * @brief MPU9250的INT引脚和中断相关定义
  */
-#define MPU9250_INT_PORT            GPIOE
-#define MPU9250_INT_PIN             GPIO_Pin_6
-#define MPU9250_INT_GPIO_CLK        RCC_AHB1Periph_GPIOE
-#define MPU9250_EXTI_PORT_SOURCE    EXTI_PortSourceGPIOE
-#define MPU9250_EXTI_PIN_SOURCE     EXTI_PinSource6
-#define MPU9250_EXTI_LINE           EXTI_Line6
+#define MPU9250_INT_PORT            GPIOD
+#define MPU9250_INT_PIN             GPIO_Pin_8
+#define MPU9250_INT_GPIO_CLK        RCC_AHB1Periph_GPIOD
+#define MPU9250_EXTI_PORT_SOURCE    EXTI_PortSourceGPIOD
+#define MPU9250_EXTI_PIN_SOURCE     EXTI_PinSource8
+#define MPU9250_EXTI_LINE           EXTI_Line8
 #define MPU9250_NVIC_IRQCHANNEL     EXTI9_5_IRQn
 #define MPU9250_EXTI_IRQHANDLER     EXTI9_5_IRQHandler
 

@@ -14,10 +14,10 @@
  *              0.1.0
  *          Recommanded pin connection:
  *          ┌────────┐     ┌────────┐
- *          │     PE2├─────┤SCL  INT├───X
- *          │     PE3├─────┤SDA  AD0├───GND
- *          └────────┘ X───┤XDA  XCL├───X
- *                         └────────┘
+ *          │     PB8├─────┤SCL  XDA├───X
+ *          │     PB9├─────┤SDA  AD0├───GND
+ *          │     PD8├─────┤INT  XCL├───X
+ *          └────────┘     └────────┘     
  *          STM32F407       mpu6050
  *          
  *          The source code repository is not available on GitHub now:
@@ -98,10 +98,11 @@
 #define MPU6050_REG_FIFO_RW			0X74	//FIFO读写寄存器
 #define MPU6050_REG_DEVICE_ID		0X75	//器件ID寄存器
 
-/**
- * @brief q30格式,long转float时的除数
- */
+//q30格式
 #define Q30  1073741824.0f
+//q16格式
+#define Q16  65536.0f
+
 
 /**
  * @brief 陀螺仪方向设置
@@ -109,7 +110,9 @@
 static int8_t MPU6050_GyroOrientation[9] = { 1, 0, 0,
                                              0, 1, 0,
                                              0, 0, 1};
-
+static void MPU6050_InitExti(void (* irqHandler)(void));
+void (* MPU6050_IrqHandler)(void);//外部中断回调函数
+                                             
 /**
  * @brief 设置陀螺仪量程
  * @param fsr MPU6050_FSR_XXXXDPS(见MPU6050_GyroFsrTypedef)
@@ -222,6 +225,43 @@ uint8_t MPU6050_GetGyroscope(int16_t *gx, int16_t *gy, int16_t *gz)
     }
     return 1;
 }
+
+/**
+ * @brief 初始化外部中断
+ * @param irqHandler 外部中断回调函数
+ */
+static inline void MPU6050_InitExti(void (* irqHandler)(void))
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    EXTI_InitTypeDef EXTI_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
+    
+    //GPIO
+    RCC_AHB1PeriphClockCmd(MPU6050_INT_GPIO_CLK, ENABLE);//使能GPIO时钟
+    GPIO_InitStructure.GPIO_Pin = MPU6050_INT_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;//100MHz
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+    GPIO_Init(MPU6050_INT_PORT, &GPIO_InitStructure);//初始化
+    //SYSCFG
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    SYSCFG_EXTILineConfig(MPU6050_EXTI_PORT_SOURCE, MPU6050_EXTI_PIN_SOURCE);
+    //EXTI
+    EXTI_InitStructure.EXTI_Line = MPU6050_EXTI_LINE;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+    //NVIC
+    NVIC_InitStructure.NVIC_IRQChannel = MPU6050_NVIC_IRQCHANNEL;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_Init(&NVIC_InitStructure);
+    //IRQ
+    MPU6050_IrqHandler = irqHandler;
+}
+
 /**
  * @brief 读取加速度计
  * @param gx x轴原始读数(带符号)
@@ -322,9 +362,11 @@ static inline uint16_t MPU6050_InvOrientationMatrix2Scalar(const int8_t *matrix)
  * @brief 连着dmp一起初始化
  * @return 0-成功; 其他-失败
  */
-uint8_t MPU6050_InitWithDmp()
+uint8_t MPU6050_InitWithDmp(void (* irqHandler)(void))
 {
 	IIC_Init();//初始化IIC总线
+    
+    MPU6050_InitExti(irqHandler);
 	if(!mpu_init())//初始化MPU6050
 	{
         //设置所需要的传感器
@@ -333,9 +375,6 @@ uint8_t MPU6050_InitWithDmp()
         //设置FIFO
 		if(mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
             return 2;
-        //设置采样率
-		if(mpu_set_sample_rate(500))
-            return 3;
         //加载dmp固件
 		if(dmp_load_motion_driver_firmware())
             return 4;
@@ -348,7 +387,7 @@ uint8_t MPU6050_InitWithDmp()
 		    DMP_FEATURE_GYRO_CAL))
             return 6;
 		//设置DMP输出速率(最大不超过200Hz)
-		if(dmp_set_fifo_rate(100))
+		if(dmp_set_fifo_rate(MPU6050_FIFO_RATE))
             return 7;
 		//自检
 		if(MPU6050_RunSelfTest())
@@ -386,17 +425,27 @@ uint8_t MPU6050_GetDmpData(float *pitch, float *roll, float *yaw)
 	/* Unlike gyro and accel, quaternions are written to the FIFO in the body frame, q30.
 	 * The orientation is set by the scalar passed to dmp_set_orientation during initialization. 
 	**/
-	if(sensors & INV_WXYZ_QUAT) 
-	{
-		q0 = quat[0] / Q30;	//q30格式转换为浮点数
-		q1 = quat[1] / Q30;
-		q2 = quat[2] / Q30;
-		q3 = quat[3] / Q30; 
-		//计算得到俯仰角/横滚角/航向角
-		*pitch = asin(2 * q0* q2 - 2 * q1 * q3) * 57.3;// pitch
-		*roll = atan2(2 * q2 * q3 + 2 * q0 * q1, 1 - 2 * q1 * q1 - 2 * q2* q2) * 57.3;// roll
-		*yaw = atan2(2 * q1 * q2 + 2 * q0 * q3, q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;//yaw
-	}else
+	if(!(sensors & INV_WXYZ_QUAT))
         return 2;
+    q0 = quat[0] / Q30;	//q30格式转换为浮点数
+    q1 = quat[1] / Q30;
+    q2 = quat[2] / Q30;
+    q3 = quat[3] / Q30; 
+    //计算得到俯仰角/横滚角/航向角
+    *pitch = asin(2 * q0* q2 - 2 * q1 * q3) * 57.3;// pitch
+    *roll = atan2(2 * q2 * q3 + 2 * q0 * q1, 1 - 2 * q1 * q1 - 2 * q2* q2) * 57.3;// roll
+    *yaw = atan2(2 * q1 * q2 + 2 * q0 * q3, q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;//yaw
 	return 0;
+}
+
+/**
+ * @brief MPU6050的外部中断服务函数
+ */
+void MPU6050_EXTI_IRQHANDLER()
+{
+    if(EXTI_GetITStatus(MPU6050_EXTI_LINE) != RESET)
+    {
+        MPU6050_IrqHandler();
+        EXTI_ClearITPendingBit(MPU6050_EXTI_LINE);
+    }
 }

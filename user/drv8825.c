@@ -100,9 +100,11 @@ void DRV8825_Init()
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;//output high when OCxREF is high
     DRV8825_STP_TIM_OC_PRELOAD_FUNC(DRV8825_STP_TIM, TIM_OCPreload_Disable);//do not buffer CCR1
     DRV8825_STP_TIM_OC_FUNC(DRV8825_STP_TIM, &TIM_OCInitStructure);
+    
     TIM_SelectSlaveMode(DRV8825_STP_TIM, TIM_SlaveMode_Gated);//GATED slave mode
     TIM_SelectInputTrigger(DRV8825_STP_TIM, DRV8825_STP_TIM_TRIG_SOURCE);//TIM10 will triggle DRV8825_STP_TIM
     TIM_Cmd(DRV8825_STP_TIM, ENABLE);
+    
     
 }
 
@@ -142,7 +144,8 @@ void DRV8825_Run(float speed, float angle)
     DRV8825_STP_TIM_CCR = (DRV8825_STP_TIM_ARR - 1) >> 1;//50% dutyrate
     //4800000/DRV8825_STP_TIM_ARR=35.55555555555555555555f*speeds
     //38400/(4800000/DRV8825_STP_TIM_ARR)=1080/speed
+    
     DRV8825_CTRL_TIM_CCR = 1;
     DRV8825_CTRL_TIM_ARR = (uint32_t)(38400.0f * angle / speed) + 1;//(angle * 32.0f / 0.9f * 1080 / speed);      172   223.25Hz;
-    TIM_Cmd(TIM10, ENABLE);
+    TIM_Cmd(DRV8825_CTRL_TIM, ENABLE);
 }

@@ -12,10 +12,10 @@
  * @note
  *          Recommanded pin connection:
  *          ┌────────┐     ┌────────┐
- *          │     PE2├─────┤SCL  INT├───X
- *          │     PE3├─────┤SDA  AD0├───GND
- *          └────────┘ X───┤XDA  XCL├───X
- *                         └────────┘
+ *          │     PB8├─────┤SCL  XDA├───X
+ *          │     PB9├─────┤SDA  AD0├───GND
+ *          │     PD8├─────┤INT  XCL├───X
+ *          └────────┘     └────────┘ 
  *          STM32F407       mpu6050
  *          
  *          The source code repository is not available on GitHub now:
@@ -36,9 +36,23 @@
 #include "math.h"
 
 /**
+ * @brief MPU6050的INT引脚和中断相关定义
+ */
+#define MPU6050_INT_PORT            GPIOD
+#define MPU6050_INT_PIN             GPIO_Pin_8
+#define MPU6050_INT_GPIO_CLK        RCC_AHB1Periph_GPIOD
+#define MPU6050_EXTI_PORT_SOURCE    EXTI_PortSourceGPIOD
+#define MPU6050_EXTI_PIN_SOURCE     EXTI_PinSource8
+#define MPU6050_EXTI_LINE           EXTI_Line8
+#define MPU6050_NVIC_IRQCHANNEL     EXTI9_5_IRQn
+#define MPU6050_EXTI_IRQHANDLER     EXTI9_5_IRQHandler
+
+/**
  * @brief MPU6050的IIC器件地址 AD0引脚接地
  */
 #define MPU6050_ADDR				0X68
+#define MPU6050_SAMPLE_RATE         200
+#define MPU6050_FIFO_RATE           200
 
 typedef enum {
     MPU6050_FSR_250DPS = 0,
@@ -122,7 +136,7 @@ uint8_t MPU6050_GetAccelerometer(int16_t *ax, int16_t *ay, int16_t *az);
  * @brief 连着dmp一起初始化
  * @return 0-成功; 其他-失败
  */
-uint8_t MPU6050_InitWithDmp(void);
+uint8_t MPU6050_InitWithDmp(void (* irqHandler)(void));
 /**
  * @brief 得到dmp处理后的数据
  * @param pitch 俯仰角, 精度:0.1°, 范围 -90°~90°

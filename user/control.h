@@ -15,18 +15,30 @@
 
 #ifndef __CONTROL_H
 #define __CONTROL_H
-
 /** 
  * @defgroup CONTROL
- * @brief Control Modules
+ * @brief Control Modules.
  * @{
  */
 
-//#define CONTROL_DEBUG
+/** 
+ * @defgroup CONTROL_mpu_select
+ * @brief Enable mpu6050 or mpu9250.
+ * @note Do not forget to change include path and manage project items.
+ * @{
+ */
+#define CONTROL_USE_MPU6050
+//#define CONTROL_USE_MPU9250
+/**
+ * @}
+ */ 
+
+
+#define CONTROL_DEBUG
 
 /** 
  * @defgroup CONTROL_timer_define
- * @brief timer for sampling
+ * @brief timer for sampling.
  * @{
  */
 //#define CONTROL_SAMPLE_TIM              TIM6
@@ -75,12 +87,12 @@ typedef enum
 }CONTROL_StateTypedef;
 
 /**
- * @brief Wheel-base of the car in centimeter
+ * @brief Wheel-base of the car in centimeter.
  */
 #define CONTROL_WHEELBASE   15.4f
 
 /**
- * @brief Threshold of angle in degree when turning
+ * @brief Threshold of angle in degree when turning.
  */
 #define CONTROL_TURNING_ANGLE_THRESHOLD     9.5f
 /**

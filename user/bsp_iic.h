@@ -12,8 +12,8 @@
  * @note
  *          Recommanded pin connection:
  *          ┌────────┐     ┌────────┐
- *          │     PE4├─────┤SCL     │
- *          │     PE5├─────┤SDA     │
+ *          │     PB8├─────┤SCL     │
+ *          │     PB9├─────┤SDA     │
  *          └────────┘     └────────┘
  *          STM32F407        slave
  *          
@@ -31,16 +31,42 @@
 #include "sys.h"
 
 //GPIO
-#define IIC_SCL_PORT        GPIOE
-#define IIC_SCL_PIN         GPIO_Pin_4
-#define IIC_SCL_GPIO_CLK    RCC_AHB1Periph_GPIOE
-#define IIC_SDA_PORT        GPIOE
-#define IIC_SDA_PIN         GPIO_Pin_5
-#define IIC_SDA_GPIO_CLK    RCC_AHB1Periph_GPIOE
-#define IIC_In()            IIC_SDA_PORT->MODER &= ~0x00000C00;IIC_SDA_PORT->MODER |= 0x00000000//输入模式
-#define IIC_Out()           IIC_SDA_PORT->MODER &= ~0x00000C00;IIC_SDA_PORT->MODER |= 0x00000400//输出模式
+#define IIC_SCL_PORT        GPIOB
+#define IIC_SCL_PIN         GPIO_Pin_8
+#define IIC_SCL_GPIO_CLK    RCC_AHB1Periph_GPIOB
+#define IIC_SDA_PORT        GPIOB
+#define IIC_SDA_PIN         GPIO_Pin_9
+#define IIC_SDA_GPIO_CLK    RCC_AHB1Periph_GPIOB
+#define IIC_In()            IIC_SDA_PORT->MODER &= ~0x000C0000;IIC_SDA_PORT->MODER |= 0x00000000//输入模式
+#define IIC_Out()           IIC_SDA_PORT->MODER &= ~0x000C0000;IIC_SDA_PORT->MODER |= 0x00040000//输出模式
 
- /**
+/**
+ * @brief 如果没有接收到应答信号，则返回1
+ */
+#define IIC_IF_NOT_ACK_RETURN_1     if(IIC_WaitAck()) {IIC_Stop(); return 1;}
+/**
+ * @brief 产生起始信号
+ */
+void IIC_Start(void);
+/**
+ * @brief 产生停止信号
+ */
+void IIC_Stop(void);
+/**
+ * @brief 等待应答信号
+ * @return 1-接收应答失败; 0-接收应答成功
+ */
+uint8_t IIC_WaitAck(void);
+/**
+ * @brief 产生应答信号
+ */
+void IIC_Ack(void);
+/**
+ * @brief 产生非应答信号
+ */  
+void IIC_NAck(void);
+
+/**
  * @brief 初始化IIC
  */
 void IIC_Init(void);
