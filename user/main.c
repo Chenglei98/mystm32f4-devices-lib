@@ -5,15 +5,19 @@
 #include "manipulator.h"
 #include "control.h"
 #include "drv8825.h"
+#include "oled.h"
 int main(void)
 {
     uart_init(115200);
     delay_init(168);
-    printf("CONTROL Init...\r\n");
+    OLED_Init();
+    OLED_DisplayLog("oled\t\t\tok\r\n");
     CONTROL_Init();
-    printf("OK\r\n");
+
+
     while(1)
     {
+        
     }
     
     

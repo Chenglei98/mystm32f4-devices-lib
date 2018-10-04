@@ -31,7 +31,7 @@
 #include "bsp_iic.h"
 
 static void IIC_DelayUs(uint32_t us);
-
+static uint8_t isInitialized = 0;
 
 /**
  * @brief 不准的微秒级延时函数
@@ -45,7 +45,9 @@ static inline void IIC_DelayUs(uint32_t us)
  * @brief 初始化IIC
  */
 void IIC_Init()
-{            
+{
+    if(isInitialized)
+        return;
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(IIC_SCL_GPIO_CLK | IIC_SDA_GPIO_CLK, ENABLE);//使能GPIO时钟
     //SCL, SDA初始化设置
@@ -59,11 +61,12 @@ void IIC_Init()
     GPIO_Init(IIC_SDA_PORT, &GPIO_InitStructure);//初始化
     IIC_SCL_PORT->BSRRL = IIC_SCL_PIN;//IIC_SCL=1
     IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1
+    isInitialized = 1;
 }
 /**
  * @brief 产生起始信号
  */
-static void IIC_Start()
+void IIC_Start()
 {
     IIC_Out();//sda线输出
     IIC_SDA_PORT->BSRRL = IIC_SDA_PIN;//IIC_SDA=1      
@@ -76,7 +79,7 @@ static void IIC_Start()
 /**
  * @brief 产生停止信号
  */
-static void IIC_Stop()
+void IIC_Stop()
 {
     IIC_Out();//sda线输出
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//IIC_SCL=0
@@ -113,7 +116,7 @@ uint8_t IIC_WaitAck()
 /**
  * @brief 产生应答信号
  */
-static void IIC_Ack()
+void IIC_Ack()
 {
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//IIC_SCL=0
     IIC_Out();
@@ -126,7 +129,7 @@ static void IIC_Ack()
 /**
  * @brief 产生非应答信号
  */           
-static void IIC_NAck()
+void IIC_NAck()
 {
     IIC_SCL_PORT->BSRRH = IIC_SCL_PIN;//IIC_SCL=0
     IIC_Out();

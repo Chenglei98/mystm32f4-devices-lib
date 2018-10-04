@@ -18,7 +18,7 @@
 #include "tb6612fng.h"
 #include "control.h"
 #include "delay.h"
-#include "stdio.h"/////////////
+#include "oled.h"
 
 #ifdef CONTROL_USE_MPU6050
     #include "mpu6050.h"
@@ -82,39 +82,33 @@ void CONTROL_Init()
     NVIC_InitTypeDef NVIC_InitStructure;
     */
     #ifdef CONTROL_DEBUG
-    printf("tb6612fng init...");
+    OLED_DisplayLog("tb6612fng\t\t");
     #endif
 
-    //TB6612FNG_Init();
+    TB6612FNG_Init();
     #ifdef CONTROL_DEBUG
-    printf("ok\r\nhallencode init...");
+    OLED_DisplayLog("ok\r\nhallencode\t\t");
     #endif
-    //HALLENCODER_Init();
+    
+    HALLENCODER_Init();
     #ifdef CONTROL_DEBUG
-    printf("ok\r\nmpu init...");
+    OLED_DisplayLog("ok\r\nmpu6050\t\t");
     #endif
+    
     int32_t code = (int32_t)MPU_InitWithDmp(CONTROL_Refresh);
     #ifdef CONTROL_DEBUG
     if(!code)
-        printf("OK\r\n");
+        OLED_DisplayLog("ok\r\n");
     else
-        printf("error:%d\r\n", code);
+    {
+        OLED_DisplayLog("%d\r\n\r\nINITIALIZATION CANCELLED", code);
+        while(1);
+    }
+    
+    OLED_Clear();
+    OLED_DisplayFormat(0, 0, "pitch roll yaw");
     #endif
-    /*
-    //Sample rate T = 50ms
-    RCC_APB1PeriphClockCmd(CONTROL_SAMPLE_TIM_CLK, ENABLE);
-    TIM_TimeBaseStructure.TIM_Prescaler = 420;
-    TIM_TimeBaseStructure.TIM_Period = 10000;
-    TIM_TimeBaseInit(CONTROL_SAMPLE_TIM, &TIM_TimeBaseStructure);
-    NVIC_InitStructure.NVIC_IRQChannel = CONTROL_SAMPLE_TIM_IRQ_CHANNEL;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_Init(&NVIC_InitStructure);
-    TIM_ITConfig(CONTROL_SAMPLE_TIM, TIM_EventSource_Update, ENABLE);
 
-    TIM_Cmd(CONTROL_SAMPLE_TIM, ENABLE);
-    */
 }
 
 /**
@@ -139,8 +133,8 @@ void CONTROL_Refresh()
         #ifdef CONTROL_DEBUG
         //printf("t=%d,%d,o=%d,%d,a=%d,%d\r\n", targetSpeed[0], targetSpeed[1], outputSpeed[0], outputSpeed[1], actualSpeed[0], actualSpeed[1]);
         //printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
-        //printf("%d,%f\r\n", targetAngle, yaw);
-        printf("%f,%f,%f\r\n", pitch, roll, yaw);
+        //printf("%f\r\n", yaw);
+        OLED_DisplayFormat(0, 1, "%4d %4d %4d", (int32_t)pitch, (int32_t)roll, (int32_t)yaw);
         #endif
         switch(CONTROL_State)
         {
@@ -157,26 +151,6 @@ void CONTROL_Refresh()
         }
     }      
 }
-
-/**
- * @brief IRQ for sampling and motor action.
- */
-/*
-void CONTROL_SAMPLE_TIM_IRQ_HANDLER(void)
-{
-    if(CONTROL_SAMPLE_TIM->SR & TIM_FLAG_Update)
-    {
-        actualSpeed[0] = HALLENCODER_ReadDeltaValue(HALLENCODER_A) * 7;//actual speed of left
-        actualSpeed[1] = HALLENCODER_ReadDeltaValue(HALLENCODER_B) * 7;//actual speed of right
-        outputSpeed[0] = CONTROL_IncrementalPi(TB6612FNG_MOTOR_A, actualSpeed[0], targetSpeed[0]);//TB6612FNG_MOTOR_A | TB6612FNG_MOTOR_B, actualSpeed[0], targetSpeed[0]);//calculate left pwm
-        outputSpeed[1] = CONTROL_IncrementalPi(TB6612FNG_MOTOR_B, actualSpeed[1], targetSpeed[1]);//TB6612FNG_MOTOR_C | TB6612FNG_MOTOR_D, actualSpeed[1], targetSpeed[1]);//calculate right pwm
-        TB6612FNG_Run(TB6612FNG_MOTOR_A, outputSpeed[0]);//TB6612FNG_MOTOR_A | TB6612FNG_MOTOR_B, outputSpeed[0]);//motor A, B --> motors in left
-        TB6612FNG_Run(TB6612FNG_MOTOR_B, outputSpeed[1]);//TB6612FNG_MOTOR_C | TB6612FNG_MOTOR_D, outputSpeed[1]);//motor C, D --> motors in right
-        //printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
-        CONTROL_SAMPLE_TIM->SR &= ~TIM_FLAG_Update;
-    }
-}
-*/
 
 inline CONTROL_StateTypedef CONTROL_GetState()
 {

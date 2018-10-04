@@ -365,8 +365,6 @@ static inline uint16_t MPU6050_InvOrientationMatrix2Scalar(const int8_t *matrix)
 uint8_t MPU6050_InitWithDmp(void (* irqHandler)(void))
 {
 	IIC_Init();//初始化IIC总线
-    
-    MPU6050_InitExti(irqHandler);
 	if(!mpu_init())//初始化MPU6050
 	{
         //设置所需要的传感器
@@ -396,6 +394,7 @@ uint8_t MPU6050_InitWithDmp(void (* irqHandler)(void))
 		if(mpu_set_dmp_state(1))
             return 9;
 	}
+    MPU6050_InitExti(irqHandler);
 	return 0;
 }
 
