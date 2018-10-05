@@ -32,32 +32,38 @@
 #ifndef __OLED_H
 #define __OLED_H
 
-#include "stm32f4xx.h" 
-#include "stdlib.h"
+#include "stm32f4xx.h"
 #include "bsp_iic.h"
 
-#define OLED_MODE 0
-#define SIZE 8
-#define XLevelL		0x00
-#define XLevelH		0x10
-#define Max_Column	128
-#define Max_Row		64
-#define	Brightness	0xFF 
-#define X_WIDTH 	128
-#define Y_WIDTH 	64	    						  
+#define OLED_IIC_ADDRESS            0x78
+#define	OLED_BRIGHTNESS             255
 
-void OLED_Init(void);
-void OLED_FillScreen(uint8_t fillData);
-void OLED_SetPosition(uint8_t x, uint8_t y);
+/**
+ * @brief oled句柄
+ * @note stringX, stringY, stringClear, stringContinuous为配置项
+ */
+typedef struct {
+    uint8_t stringX;//字符串起始列位置(0~20)
+    uint8_t stringY;//字符串起始行位置(0~7)
+    FunctionalState stringClear;//是否清除上次字符串, 仅限本次OLED_DisplayFormat函数
+    FunctionalState stringContinuous;//接着上次结束位置打印
+    uint8_t __stringX;//当前打印字符位置
+    uint8_t __stringY;//当前打印字符位置
+    uint8_t __positionX;//当前显示坐标
+    uint8_t __positionY;//当前显示坐标
+    uint8_t __stringLastBeignX;//上次打印字符串起始位置
+    uint8_t __stringLastBeignY;//上次打印字符串起始位置
+    uint8_t __stringLastEndX;//上次打印字符串结束位置
+    uint8_t __stringLastEndY;//上次打印字符串结束位置
+    char __string[100];//实际打印的字符串
+}OLED_HandleTypedef;
+
+void OLED_Init(OLED_HandleTypedef *oledHandle);
 void OLED_TurnOn(void);
 void OLED_TurnOff(void);
-void OLED_Clear(void);
+void OLED_Clear(OLED_HandleTypedef *oledHandle);
 void OLED_Blank(void);
-void OLED_DisplayCharacter(uint8_t positionX, uint8_t positionY, uint8_t character, uint8_t characterSize);
-void OLED_DisplayFormat(uint8_t positionX, uint8_t positionY, const char *format, ...);
-void OLED_ClearLine(uint8_t lineIndex);
-void OLED_DisplayLog(const char *format, ...);
-void OLED_DisplayChinese(uint8_t positionX, uint8_t positionY, uint8_t number);
-void OLED_DisplayPicture(uint8_t positionX, uint8_t positionY, uint8_t width, uint8_t height, uint8_t picture[]);
+void OLED_DisplayFormat(OLED_HandleTypedef *oledHandle, const char *format, ...);
+void OLED_DisplayLog(OLED_HandleTypedef *oledHandle, const char *format, ...);
 
 #endif 

@@ -33,9 +33,9 @@
  * @}
  */ 
 
-
-#define CONTROL_DEBUG
-
+#ifdef USE_OLED_DEBUG
+    #define CONTROL_USE_OLED_DEBUG
+#endif
 /** 
  * @defgroup CONTROL_timer_define
  * @brief timer for sampling.

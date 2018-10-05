@@ -18,7 +18,7 @@
 #include "tb6612fng.h"
 #include "control.h"
 #include "delay.h"
-#include "oled.h"
+#include "stdio.h"
 
 #ifdef CONTROL_USE_MPU6050
     #include "mpu6050.h"
@@ -30,11 +30,12 @@
     #define MPU_GetDmpData MPU9250_GetDmpData
 #endif
 #if !defined CONTROL_USE_MPU6050 && !defined CONTROL_USE_MPU9250
-#error  Which gyro are you using? Define CONTROL_USE_MPUxxxx in your options.
+    #error  Which gyro are you using? Define CONTROL_USE_MPUxxxx in your options.
 #endif
 
-#ifdef CONTROL_DEBUG
-#include "stdio.h"
+#ifdef CONTROL_USE_OLED_DEBUG
+    #include "oled.h"
+    extern OLED_HandleTypedef oledHandle;
 #endif
 /** @addtogroup CONTROL
  * @{
@@ -81,34 +82,40 @@ void CONTROL_Init()
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
     */
-    #ifdef CONTROL_DEBUG
-    OLED_DisplayLog("tb6612fng\t\t");
+    #ifdef CONTROL_USE_OLED_DEBUG
+    OLED_DisplayLog(&oledHandle, "tb6612fng\t\t\t");
     #endif
 
     TB6612FNG_Init();
-    #ifdef CONTROL_DEBUG
-    OLED_DisplayLog("ok\r\nhallencode\t\t");
+    #ifdef CONTROL_USE_OLED_DEBUG
+    OLED_DisplayLog(&oledHandle, "ok\r\nhallencoder\t\t");
     #endif
     
     HALLENCODER_Init();
-    #ifdef CONTROL_DEBUG
-    OLED_DisplayLog("ok\r\nmpu6050\t\t");
+    #ifdef CONTROL_USE_OLED_DEBUG
+    OLED_DisplayLog(&oledHandle, "ok\r\nmpu6050\t\t\t");
     #endif
     
     int32_t code = (int32_t)MPU_InitWithDmp(CONTROL_Refresh);
-    #ifdef CONTROL_DEBUG
+    #ifdef CONTROL_USE_OLED_DEBUG
     if(!code)
-        OLED_DisplayLog("ok\r\n");
+        OLED_DisplayLog(&oledHandle, "ok\r\n");
     else
     {
-        OLED_DisplayLog("%d\r\n\r\nINITIALIZATION CANCELLED", code);
+        OLED_DisplayLog(&oledHandle, "%d\r\n\r\nINITIALIZATION CANCELLED\r\n", code);
         while(1);
     }
-    
-    OLED_Clear();
-    OLED_DisplayFormat(0, 0, "pitch roll yaw");
+    OLED_DisplayLog(&oledHandle, "evaluating cpu\t\t");
+    OLED_DisplayLog(&oledHandle, "ok\r\n");
+    OLED_DisplayLog(&oledHandle, "\r\nENJOY!\r\n");
+    delay_ms(2000);
+    oledHandle.stringContinuous = DISABLE;
+    OLED_Clear(&oledHandle);
+    OLED_DisplayFormat(&oledHandle, "YAW:");
+    oledHandle.stringX = 0;
+    oledHandle.stringX = 4;
     #endif
-
+    MPU6050_BeginReceive();
 }
 
 /**
@@ -118,8 +125,8 @@ void CONTROL_Refresh()
 {
     static uint32_t i = 0;
     float pitch, roll, yaw;//Euler angle of the car
-    if(!MPU_GetDmpData(&pitch, &roll, &yaw))
-        actualAngle = (int32_t)yaw;
+    static uint8_t errorLast = 0;
+    uint8_t code = MPU_GetDmpData(&pitch, &roll, &yaw);
 
     if((++i) == 10)
     {
@@ -130,11 +137,24 @@ void CONTROL_Refresh()
         outputSpeed[1] = CONTROL_IncrementalPi(CONTROL_MOTOR_RIGHT, actualSpeed[1], targetSpeed[1]);//calculate right pwm
         TB6612FNG_Run(CONTROL_MOTOR_LEFT, outputSpeed[0]);//motor A, B --> left motors
         TB6612FNG_Run(CONTROL_MOTOR_RIGHT, outputSpeed[1]);//motor C, D --> right motors
-        #ifdef CONTROL_DEBUG
         //printf("t=%d,%d,o=%d,%d,a=%d,%d\r\n", targetSpeed[0], targetSpeed[1], outputSpeed[0], outputSpeed[1], actualSpeed[0], actualSpeed[1]);
         //printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
         //printf("%f\r\n", yaw);
-        OLED_DisplayFormat(0, 1, "%4d %4d %4d", (int32_t)pitch, (int32_t)roll, (int32_t)yaw);
+        #ifdef CONTROL_USE_OLED_DEBUG
+        if(code)
+        {
+            errorLast = 1;
+            OLED_DisplayFormat(&oledHandle, "Err-%d", (int32_t)code);
+        }
+        else
+        {
+            if(errorLast)
+            {
+                errorLast = 0;
+                oledHandle.stringClear = ENABLE;
+            }
+            OLED_DisplayFormat(&oledHandle, "%4d", (int32_t)yaw);
+        }
         #endif
         switch(CONTROL_State)
         {

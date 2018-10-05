@@ -86,7 +86,10 @@ typedef enum {
  *       中断关, I2C主模式关, FIFO关, INT低有效, 陀螺仪X轴时钟
  */
 uint8_t MPU6050_Init(void);
-
+/**
+ * @brief 开启外部中断, 开始接收MPU6050的数据
+ */
+void MPU6050_BeginReceive(void);
 /**
  * @brief 设置陀螺仪量程
  * @param fsr MPU6050_FSR_XXXXDPS(见MPU6050_GyroFsrTypedef)

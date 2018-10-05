@@ -110,7 +110,7 @@
 static int8_t MPU6050_GyroOrientation[9] = { 1, 0, 0,
                                              0, 1, 0,
                                              0, 0, 1};
-static void MPU6050_InitExti(void (* irqHandler)(void));
+static inline void MPU6050_InitExti(void (* irqHandler)(void));
 void (* MPU6050_IrqHandler)(void);//外部中断回调函数
                                              
 /**
@@ -234,7 +234,6 @@ static inline void MPU6050_InitExti(void (* irqHandler)(void))
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     EXTI_InitTypeDef EXTI_InitStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
     
     //GPIO
     RCC_AHB1PeriphClockCmd(MPU6050_INT_GPIO_CLK, ENABLE);//使能GPIO时钟
@@ -252,14 +251,22 @@ static inline void MPU6050_InitExti(void (* irqHandler)(void))
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
+    //IRQ
+    MPU6050_IrqHandler = irqHandler;
+}
+
+/**
+ * @brief 开启外部中断, 开始接收MPU6050的数据
+ */
+void MPU6050_BeginReceive()
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
     //NVIC
     NVIC_InitStructure.NVIC_IRQChannel = MPU6050_NVIC_IRQCHANNEL;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_Init(&NVIC_InitStructure);
-    //IRQ
-    MPU6050_IrqHandler = irqHandler;
 }
 
 /**
