@@ -28,7 +28,7 @@
  *              2. Avoid to commit several features in one commit.
  *              3. Make your modification compact - don't reformat source code in your request.
  */
- 
+
 #include "oled.h"
 #include "oled_font.h"       
 #include "delay.h"
@@ -46,7 +46,7 @@
 /**
  * @brief 制表符光标位置查询表
  */
-static const uint8_t tabLookUpTable[OLED_CHARACTERS_ONE_LINE + 1] = {3,3,3,7,7,7,7,11,11,11,11,15,15,15,15,19,19,19,19,23,23,23};
+static const uint8_t tabLookUpTable[OLED_CHARACTERS_ONE_LINE + 1] = {4,4,4,4,8,8,8,8,12,12,12,12,16,16,16,16,20,20,20,20,24,24};
 static __IO uint8_t gRam[OLED_PAGES][OLED_WIDTH] = {0};
 
 static uint8_t OLED_WriteCommand(uint8_t command);

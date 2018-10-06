@@ -15,6 +15,9 @@
 
 #ifndef __CONTROL_H
 #define __CONTROL_H
+
+#include "tb6612fng.h"
+
 /** 
  * @defgroup CONTROL
  * @brief Control Modules.
@@ -64,8 +67,8 @@
  * @defgroup CONTROL_pid_parameter
  * @{
  */
-#define CONTROL_VELOCITY_KP             0.9f
-#define CONTROL_VELOCITY_KI             1.07f
+#define CONTROL_VELOCITY_KP             0.235f//0.90f
+#define CONTROL_VELOCITY_KI             0.693f//1.07f
 /**
  * @}
  */

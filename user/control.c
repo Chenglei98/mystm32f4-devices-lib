@@ -15,7 +15,6 @@
  
 #include "stm32f4xx.h"
 #include "hallencoder.h"
-#include "tb6612fng.h"
 #include "control.h"
 #include "delay.h"
 #include "stdio.h"
@@ -108,12 +107,10 @@ void CONTROL_Init()
     OLED_DisplayLog(&oledHandle, "evaluating cpu\t\t");
     OLED_DisplayLog(&oledHandle, "ok\r\n");
     OLED_DisplayLog(&oledHandle, "\r\nENJOY!\r\n");
-    delay_ms(2000);
+    delay_ms(1000);
     oledHandle.stringContinuous = DISABLE;
     OLED_Clear(&oledHandle);
-    OLED_DisplayFormat(&oledHandle, "YAW:");
-    oledHandle.stringX = 0;
-    oledHandle.stringX = 4;
+    OLED_DisplayFormat(&oledHandle, "  YAW  LO   RO\r\n\r\n\r\n  LTS  RTS  LAS  RAS");
     #endif
     MPU6050_BeginReceive();
 }
@@ -125,36 +122,33 @@ void CONTROL_Refresh()
 {
     static uint32_t i = 0;
     float pitch, roll, yaw;//Euler angle of the car
-    static uint8_t errorLast = 0;
     uint8_t code = MPU_GetDmpData(&pitch, &roll, &yaw);
 
-    if((++i) == 10)
+    if(++i == 20)
     {
         i = 0;
-        actualSpeed[0] = -HALLENCODER_ReadDeltaValue(HALLENCODER_B) * 7 / 2;//actual speed of left
-        actualSpeed[1] = HALLENCODER_ReadDeltaValue(HALLENCODER_A) * 7 / 2;//actual speed of right
+        actualSpeed[0] = HALLENCODER_ReadDeltaValue(HALLENCODER_A) * 7 / 2;//actual speed of left
+        actualSpeed[1] = -HALLENCODER_ReadDeltaValue(HALLENCODER_B) * 7 / 2;//actual speed of right
         outputSpeed[0] = -CONTROL_IncrementalPi(CONTROL_MOTOR_LEFT, actualSpeed[0], targetSpeed[0]);//calculate left pwm
         outputSpeed[1] = CONTROL_IncrementalPi(CONTROL_MOTOR_RIGHT, actualSpeed[1], targetSpeed[1]);//calculate right pwm
         TB6612FNG_Run(CONTROL_MOTOR_LEFT, outputSpeed[0]);//motor A, B --> left motors
         TB6612FNG_Run(CONTROL_MOTOR_RIGHT, outputSpeed[1]);//motor C, D --> right motors
         //printf("t=%d,%d,o=%d,%d,a=%d,%d\r\n", targetSpeed[0], targetSpeed[1], outputSpeed[0], outputSpeed[1], actualSpeed[0], actualSpeed[1]);
-        //printf("%d,%d,%d,%d\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
-        //printf("%f\r\n", yaw);
+        printf("%d,%d,%d,%d,%f\r\n", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1], yaw);
         #ifdef CONTROL_USE_OLED_DEBUG
+        oledHandle.stringX = 0;
+        oledHandle.stringY = 1;
         if(code)
-        {
-            errorLast = 1;
             OLED_DisplayFormat(&oledHandle, "Err-%d", (int32_t)code);
-        }
         else
-        {
-            if(errorLast)
-            {
-                errorLast = 0;
-                oledHandle.stringClear = ENABLE;
-            }
-            OLED_DisplayFormat(&oledHandle, "%4d", (int32_t)yaw);
-        }
+            OLED_DisplayFormat(&oledHandle, "%5d", (uint32_t)yaw);
+//        
+//        oledHandle.stringX = 5;
+//        OLED_DisplayFormat(&oledHandle, "%5d%5d", outputSpeed[0], outputSpeed[1]);
+//        
+//        oledHandle.stringX = 0;
+//        oledHandle.stringY = 4;
+//        OLED_DisplayFormat(&oledHandle, "%5d%5d%5d%5d", targetSpeed[0], targetSpeed[1], actualSpeed[0], actualSpeed[1]);
         #endif
         switch(CONTROL_State)
         {

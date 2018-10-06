@@ -12,17 +12,17 @@
  *          Minimum version of header file:
  *              0.4.0
  *          Recommanded pin connection:
- *             ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
- *             ©¦    PWMA©À©¤©¤©¤©¤©¤©ÈPA0     PA2©À©¤©¤©¤©¤©¤©ÈPWMA(PWMC)©¦
- *             ©¦    AIN2©À©¤©¤©¤©¤©¤©ÈPE1     PB5©À©¤©¤©¤©¤©¤©ÈAIN2(CIN2)©¦
- *             ©¦    AIN1©À©¤©¤©¤©¤©¤©ÈPE0     PB3©À©¤©¤©¤©¤©¤©ÈAIN1(CIN1)©¦
- *             ©¦    STBY©À©¤©¤©¤©¤©¤©ÈPD5     PD4©À©¤©¤©¤©¤©¤©ÈSTBY      ©¦
- *             ©¦    BIN1©À©¤©¤©¤©¤©¤©ÈPB6     PD6©À©¤©¤©¤©¤©¤©ÈBIN1(DIN1)©¦
- *             ©¦    BIN2©À©¤©¤©¤©¤©¤©ÈPB7     PD7©À©¤©¤©¤©¤©¤©ÈBIN2(DIN2)©¦
- *             ©¦    PWMB©À©¤©¤©¤©¤©¤©ÈPA1     PA3©À©¤©¤©¤©¤©¤©ÈPWMB(PWMD)©¦
- *             ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
- *             TB6612FNG_1      STM32F407       TB6612FNG_2
- *  
+ *              ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
+ *              ©¦    PWMA©À©¤©¤©¤©¤©¤©ÈPA0    PB10©À©¤©¤©¤©¤©¤©ÈPWMA(PWMC)©¦
+ *              ©¦    AIN2©À©¤©¤©¤©¤©¤©ÈPC0     PD3©À©¤©¤©¤©¤©¤©ÈAIN2(CIN2)©¦
+ *              ©¦    AIN1©À©¤©¤©¤©¤©¤©ÈPC1     PD4©À©¤©¤©¤©¤©¤©ÈAIN1(CIN1)©¦
+ *              ©¦    STBY©À©¤©¤©¤©¤©¤©ÈPC2     PD5©À©¤©¤©¤©¤©¤©ÈSTBY      ©¦
+ *              ©¦    BIN1©À©¤©¤©¤©¤©¤©ÈPC3     PD6©À©¤©¤©¤©¤©¤©ÈBIN1(DIN1)©¦
+ *              ©¦    BIN2©À©¤©¤©¤©¤©¤©ÈPC4     PD7©À©¤©¤©¤©¤©¤©ÈBIN2(DIN2)©¦
+ *              ©¦    PWMB©À©¤©¤©¤©¤©¤©ÈPA1    PB11©À©¤©¤©¤©¤©¤©ÈPWMB(PWMD)©¦
+ *              ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
+ *              TB6612FNG_1      STM32F407       TB6612FNG_2
+ *             
  *          The source code repository is available on GitHub:
  *              https://github.com/3703781/mystm32f4-devices-lib
  *          Your pull requests will be welcome.
@@ -54,9 +54,13 @@ void TB6612FNG_Init()
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;
-    GPIO_InitStructure.GPIO_Pin = TB6612FNG_STBY_PIN;
-    GPIO_Init(TB6612FNG_STBY_PORT, &GPIO_InitStructure);
-    GPIO_ResetBits(TB6612FNG_STBY_PORT, TB6612FNG_STBY_PIN);//STBY = L
+    GPIO_InitStructure.GPIO_Pin = TB6612FNG_STBYA_PIN;
+    GPIO_Init(TB6612FNG_STBYA_PORT, &GPIO_InitStructure);
+    GPIO_ResetBits(TB6612FNG_STBYA_PORT, TB6612FNG_STBYA_PIN);//STBYA = L
+    GPIO_InitStructure.GPIO_Pin = TB6612FNG_STBYB_PIN;
+    GPIO_Init(TB6612FNG_STBYB_PORT, &GPIO_InitStructure);
+    GPIO_ResetBits(TB6612FNG_STBYB_PORT, TB6612FNG_STBYB_PIN);//STBYB = L
+    
     //TIM
     RCC_APB1PeriphClockCmd(TB6612FNG_PWM_TIM_CLK, ENABLE);
     TIM_BaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -243,7 +247,8 @@ void TB6612FNG_Run(uint8_t motorX, int32_t pwmPulse)
         }
     }
     
-    TB6612FNG_STBY_PORT->BSRRL = TB6612FNG_STBY_PIN;//STBY = H
+    TB6612FNG_STBYA_PORT->BSRRL = TB6612FNG_STBYA_PIN;//STBYA = H
+    TB6612FNG_STBYB_PORT->BSRRL = TB6612FNG_STBYB_PIN;//STBYB = H
 }
 
 /**
@@ -262,17 +267,21 @@ void TB6612FNG_Stop(uint8_t motorX)
     if(motorX & TB6612FNG_MOTOR_D)
         TB6612FNG_PWMD_TIM_CCR = 0;//PWMD = L
     
-    TB6612FNG_STBY_PORT->BSRRL = TB6612FNG_STBY_PIN;//STBY = H
+    TB6612FNG_STBYA_PORT->BSRRL = TB6612FNG_STBYA_PIN;//STBYA = H
+    TB6612FNG_STBYB_PORT->BSRRL = TB6612FNG_STBYB_PIN;//STBYB = H
 }
 
 /**
  * @brief Sleep all motors
- * @param motorX            TB6612FNG_MOTOR_X where X can be (A...D) to select motor.
- *                          This parameter can be any combination of @ref TB6612FNG_motor_select.
+ * @param driverX           TB6612FNG_X where X can be (A, B) to select motor.
+ *                          This parameter can be any combination of @ref TB6612FNG_select.
  */
-void RB6612FNG_Sleep()
+void TB6612FNG_Sleep(uint8_t driverX)
 {
-    TB6612FNG_STBY_PORT->BSRRH = TB6612FNG_STBY_PIN;//STBY = L
+    if(driverX & TB6612FNG_A)
+        TB6612FNG_STBYA_PORT->BSRRH = TB6612FNG_STBYA_PIN;//STBYA = L
+    if(driverX & TB6612FNG_B)
+        TB6612FNG_STBYB_PORT->BSRRH = TB6612FNG_STBYB_PIN;//STBYB = L
 }
 /**
  * @}

@@ -13,8 +13,8 @@
  *              0.2.0
  *          Recommanded pin connection:
  *             ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©´
- *             ©¦  PHASEA©À©¤©¤©¤©¤©¤©ÈPA6    PD12©À©¤©¤©¤©¤©¤©ÈPHASEA  ©¦
- *             ©¦  PHASEB©À©¤©¤©¤©¤©¤©ÈPA7    PD13©À©¤©¤©¤©¤©¤©ÈPHASEB  ©¦
+ *             ©¦  PHASEA©À©¤©¤©¤©¤©¤©ÈPA7    PD13©À©¤©¤©¤©¤©¤©ÈPHASEA  ©¦
+ *             ©¦  PHASEB©À©¤©¤©¤©¤©¤©ÈPB4    PD12©À©¤©¤©¤©¤©¤©ÈPHASEB  ©¦
  *             ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼
  *              encoder_1       STM32F407       encoder_2
  *          
@@ -40,7 +40,7 @@ void HALLENCODER_Init()
 {
     //Initialize GPIO after ICs to avoid going into hardfault
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_ICInitTypeDef TIM_ICInitStructure;  
+    TIM_ICInitTypeDef TIM_ICInitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
     
     //TIM3 for hall encoder A

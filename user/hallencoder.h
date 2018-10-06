@@ -13,8 +13,8 @@
  *              0.2.0
  *          Recommanded pin connection:
  *             ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©´
- *             ©¦  PHASEA©À©¤©¤©¤©¤©¤©ÈPA6    PD12©À©¤©¤©¤©¤©¤©ÈPHASEA  ©¦
- *             ©¦  PHASEB©À©¤©¤©¤©¤©¤©ÈPA7    PD13©À©¤©¤©¤©¤©¤©ÈPHASEB  ©¦
+ *             ©¦  PHASEA©À©¤©¤©¤©¤©¤©ÈPA7    PD13©À©¤©¤©¤©¤©¤©ÈPHASEA  ©¦
+ *             ©¦  PHASEB©À©¤©¤©¤©¤©¤©ÈPB4    PD12©À©¤©¤©¤©¤©¤©ÈPHASEB  ©¦
  *             ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼
  *              encoder_1       STM32F407       encoder_2
  *
@@ -46,25 +46,25 @@
 //GPIO for hall encoder A
 #define HALLENCODER_A_GPIO_AF               GPIO_AF_TIM3
 #define HALLENCODER_A_PHASEA_PORT           GPIOA
-#define HALLENCODER_A_PHASEA_PIN            GPIO_Pin_6
+#define HALLENCODER_A_PHASEA_PIN            GPIO_Pin_7
 #define HALLENCODER_A_PHASEA_GPIO_CLK       RCC_AHB1Periph_GPIOA
-#define HALLENCODER_A_PHASEA_GPIO_PINSOURCE GPIO_PinSource6
-#define HALLENCODER_A_PHASEB_PORT           GPIOA
-#define HALLENCODER_A_PHASEB_PIN            GPIO_Pin_7
-#define HALLENCODER_A_PHASEB_GPIO_CLK       RCC_AHB1Periph_GPIOA
-#define HALLENCODER_A_PHASEB_GPIO_PINSOURCE GPIO_PinSource7
+#define HALLENCODER_A_PHASEA_GPIO_PINSOURCE GPIO_PinSource7
+#define HALLENCODER_A_PHASEB_PORT           GPIOB
+#define HALLENCODER_A_PHASEB_PIN            GPIO_Pin_4
+#define HALLENCODER_A_PHASEB_GPIO_CLK       RCC_AHB1Periph_GPIOB
+#define HALLENCODER_A_PHASEB_GPIO_PINSOURCE GPIO_PinSource4
 #define HALLENCODER_A_GPIO_CLK_ALL          (HALLENCODER_A_PHASEA_GPIO_CLK | HALLENCODER_A_PHASEB_GPIO_CLK)
 
 //GPIO for hall encoder B
 #define HALLENCODER_B_GPIO_AF               GPIO_AF_TIM4
 #define HALLENCODER_B_PHASEA_PORT           GPIOD
-#define HALLENCODER_B_PHASEA_PIN            GPIO_Pin_12
+#define HALLENCODER_B_PHASEA_PIN            GPIO_Pin_13
 #define HALLENCODER_B_PHASEA_GPIO_CLK       RCC_AHB1Periph_GPIOD
-#define HALLENCODER_B_PHASEA_GPIO_PINSOURCE GPIO_PinSource12
+#define HALLENCODER_B_PHASEA_GPIO_PINSOURCE GPIO_PinSource13
 #define HALLENCODER_B_PHASEB_PORT           GPIOD
-#define HALLENCODER_B_PHASEB_PIN            GPIO_Pin_13
+#define HALLENCODER_B_PHASEB_PIN            GPIO_Pin_12
 #define HALLENCODER_B_PHASEB_GPIO_CLK       RCC_AHB1Periph_GPIOD
-#define HALLENCODER_B_PHASEB_GPIO_PINSOURCE GPIO_PinSource13
+#define HALLENCODER_B_PHASEB_GPIO_PINSOURCE GPIO_PinSource12
 #define HALLENCODER_B_GPIO_CLK_ALL          (HALLENCODER_B_PHASEA_GPIO_CLK | HALLENCODER_B_PHASEB_GPIO_CLK)
 /**
  * @}

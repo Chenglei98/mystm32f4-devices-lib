@@ -25,16 +25,16 @@
  *                to choose timer and channel corresponding to GPIO
  *
  *           Recommanded pin connection:
- *                ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
- *                ©¦    PWMA©À©¤©¤©¤©¤©¤©ÈPA0     PA2©À©¤©¤©¤©¤©¤©ÈPWMA(PWMC)©¦
- *                ©¦    AIN2©À©¤©¤©¤©¤©¤©ÈPE1     PB5©À©¤©¤©¤©¤©¤©ÈAIN2(CIN2)©¦
- *                ©¦    AIN1©À©¤©¤©¤©¤©¤©ÈPE0     PB3©À©¤©¤©¤©¤©¤©ÈAIN1(CIN1)©¦
- *                ©¦    STBY©À©¤©¤©¤©¤©¤©ÈPD5     PD4©À©¤©¤©¤©¤©¤©ÈSTBY      ©¦
- *                ©¦    BIN1©À©¤©¤©¤©¤©¤©ÈPB6     PD6©À©¤©¤©¤©¤©¤©ÈBIN1(DIN1)©¦
- *                ©¦    BIN2©À©¤©¤©¤©¤©¤©ÈPB7     PD7©À©¤©¤©¤©¤©¤©ÈBIN2(DIN2)©¦
- *                ©¦    PWMB©À©¤©¤©¤©¤©¤©ÈPA1     PA3©À©¤©¤©¤©¤©¤©ÈPWMB(PWMD)©¦
- *                ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
- *                TB6612FNG_1      STM32F407       TB6612FNG_2
+ *              ©°©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´     ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
+ *              ©¦    PWMA©À©¤©¤©¤©¤©¤©ÈPA0    PB10©À©¤©¤©¤©¤©¤©ÈPWMA(PWMC)©¦
+ *              ©¦    AIN2©À©¤©¤©¤©¤©¤©ÈPC0     PD3©À©¤©¤©¤©¤©¤©ÈAIN2(CIN2)©¦
+ *              ©¦    AIN1©À©¤©¤©¤©¤©¤©ÈPC1     PD4©À©¤©¤©¤©¤©¤©ÈAIN1(CIN1)©¦
+ *              ©¦    STBY©À©¤©¤©¤©¤©¤©ÈPC2     PD5©À©¤©¤©¤©¤©¤©ÈSTBY      ©¦
+ *              ©¦    BIN1©À©¤©¤©¤©¤©¤©ÈPC3     PD6©À©¤©¤©¤©¤©¤©ÈBIN1(DIN1)©¦
+ *              ©¦    BIN2©À©¤©¤©¤©¤©¤©ÈPC4     PD7©À©¤©¤©¤©¤©¤©ÈBIN2(DIN2)©¦
+ *              ©¦    PWMB©À©¤©¤©¤©¤©¤©ÈPA1    PB11©À©¤©¤©¤©¤©¤©ÈPWMB(PWMD)©¦
+ *              ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼     ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
+ *              TB6612FNG_1      STM32F407       TB6612FNG_2
  *
  *          The source code repository is available on GitHub:
  *              https://github.com/3703781/mystm32f4-devices-lib
@@ -62,17 +62,21 @@
  */
 //GPIO for general use
 #define TB6612FNG_PWM_GPIO_AF               GPIO_AF_TIM2
-#define TB6612FNG_STBY_GPIO_CLK             RCC_AHB1Periph_GPIOD
-#define TB6612FNG_STBY_PORT                 GPIOD
-#define TB6612FNG_STBY_PIN                  (GPIO_Pin_4 | GPIO_Pin_5)
+#define TB6612FNG_STBYA_GPIO_CLK            RCC_AHB1Periph_GPIOC
+#define TB6612FNG_STBYA_PORT                GPIOC
+#define TB6612FNG_STBYA_PIN                 GPIO_Pin_2
+#define TB6612FNG_STBYB_GPIO_CLK            RCC_AHB1Periph_GPIOD
+#define TB6612FNG_STBYB_PORT                GPIOD
+#define TB6612FNG_STBYB_PIN                 GPIO_Pin_5
+#define TB6612FNG_STBY_GPIO_CLK             (TB6612FNG_STBYA_GPIO_CLK | TB6612FNG_STBYB_GPIO_CLK)
 
 //GPIO for motorA
-#define TB6612FNG_AIN1_GPIO_CLK             RCC_AHB1Periph_GPIOE
-#define TB6612FNG_AIN1_PORT                 GPIOE
-#define TB6612FNG_AIN1_PIN                  GPIO_Pin_0
-#define TB6612FNG_AIN2_GPIO_CLK             RCC_AHB1Periph_GPIOE
-#define TB6612FNG_AIN2_PORT                 GPIOE
-#define TB6612FNG_AIN2_PIN                  GPIO_Pin_1
+#define TB6612FNG_AIN1_GPIO_CLK             RCC_AHB1Periph_GPIOC
+#define TB6612FNG_AIN1_PORT                 GPIOC
+#define TB6612FNG_AIN1_PIN                  GPIO_Pin_1
+#define TB6612FNG_AIN2_GPIO_CLK             RCC_AHB1Periph_GPIOC
+#define TB6612FNG_AIN2_PORT                 GPIOC
+#define TB6612FNG_AIN2_PIN                  GPIO_Pin_0
 #define TB6612FNG_PWMA_GPIO_CLK             RCC_AHB1Periph_GPIOA
 #define TB6612FNG_PWMA_PORT                 GPIOA
 #define TB6612FNG_PWMA_PIN                  GPIO_Pin_0
@@ -80,12 +84,12 @@
 #define TB6612FNG_PIN_A_ALL_CLK             (TB6612FNG_AIN1_GPIO_CLK | TB6612FNG_AIN2_GPIO_CLK | TB6612FNG_PWMA_GPIO_CLK)
 
 //GPIO for motorB
-#define TB6612FNG_BIN1_GPIO_CLK             RCC_AHB1Periph_GPIOB
-#define TB6612FNG_BIN1_PORT                 GPIOB
-#define TB6612FNG_BIN1_PIN                  GPIO_Pin_6
-#define TB6612FNG_BIN2_GPIO_CLK             RCC_AHB1Periph_GPIOB
-#define TB6612FNG_BIN2_PORT                 GPIOB
-#define TB6612FNG_BIN2_PIN                  GPIO_Pin_7
+#define TB6612FNG_BIN1_GPIO_CLK             RCC_AHB1Periph_GPIOC
+#define TB6612FNG_BIN1_PORT                 GPIOC
+#define TB6612FNG_BIN1_PIN                  GPIO_Pin_3
+#define TB6612FNG_BIN2_GPIO_CLK             RCC_AHB1Periph_GPIOC
+#define TB6612FNG_BIN2_PORT                 GPIOC
+#define TB6612FNG_BIN2_PIN                  GPIO_Pin_4
 #define TB6612FNG_PWMB_GPIO_CLK             RCC_AHB1Periph_GPIOA
 #define TB6612FNG_PWMB_PORT                 GPIOA
 #define TB6612FNG_PWMB_PIN                  GPIO_Pin_1
@@ -93,16 +97,16 @@
 #define TB6612FNG_PIN_B_ALL_CLK             (TB6612FNG_BIN1_GPIO_CLK | TB6612FNG_BIN2_GPIO_CLK | TB6612FNG_PWMB_GPIO_CLK)
 
 //GPIO for motorC
-#define TB6612FNG_CIN1_GPIO_CLK             RCC_AHB1Periph_GPIOB
-#define TB6612FNG_CIN1_PORT                 GPIOB
-#define TB6612FNG_CIN1_PIN                  GPIO_Pin_3
-#define TB6612FNG_CIN2_GPIO_CLK             RCC_AHB1Periph_GPIOB
-#define TB6612FNG_CIN2_PORT                 GPIOB
-#define TB6612FNG_CIN2_PIN                  GPIO_Pin_5
-#define TB6612FNG_PWMC_GPIO_CLK             RCC_AHB1Periph_GPIOA
-#define TB6612FNG_PWMC_PORT                 GPIOA
-#define TB6612FNG_PWMC_PIN                  GPIO_Pin_2
-#define TB6612FNG_PWMC_GPIO_PINSOURCE       GPIO_PinSource2
+#define TB6612FNG_CIN1_GPIO_CLK             RCC_AHB1Periph_GPIOD
+#define TB6612FNG_CIN1_PORT                 GPIOD
+#define TB6612FNG_CIN1_PIN                  GPIO_Pin_4
+#define TB6612FNG_CIN2_GPIO_CLK             RCC_AHB1Periph_GPIOD
+#define TB6612FNG_CIN2_PORT                 GPIOD
+#define TB6612FNG_CIN2_PIN                  GPIO_Pin_3
+#define TB6612FNG_PWMC_GPIO_CLK             RCC_AHB1Periph_GPIOB
+#define TB6612FNG_PWMC_PORT                 GPIOB
+#define TB6612FNG_PWMC_PIN                  GPIO_Pin_10
+#define TB6612FNG_PWMC_GPIO_PINSOURCE       GPIO_PinSource10
 #define TB6612FNG_PIN_C_ALL_CLK             (TB6612FNG_CIN1_GPIO_CLK | TB6612FNG_CIN2_GPIO_CLK | TB6612FNG_PWMC_GPIO_CLK)
 
 //GPIO for motorD
@@ -112,10 +116,10 @@
 #define TB6612FNG_DIN2_GPIO_CLK             RCC_AHB1Periph_GPIOD
 #define TB6612FNG_DIN2_PORT                 GPIOD
 #define TB6612FNG_DIN2_PIN                  GPIO_Pin_7
-#define TB6612FNG_PWMD_GPIO_CLK             RCC_AHB1Periph_GPIOA
-#define TB6612FNG_PWMD_PORT                 GPIOA
-#define TB6612FNG_PWMD_PIN                  GPIO_Pin_3
-#define TB6612FNG_PWMD_GPIO_PINSOURCE       GPIO_PinSource3
+#define TB6612FNG_PWMD_GPIO_CLK             RCC_AHB1Periph_GPIOB
+#define TB6612FNG_PWMD_PORT                 GPIOB
+#define TB6612FNG_PWMD_PIN                  GPIO_Pin_11
+#define TB6612FNG_PWMD_GPIO_PINSOURCE       GPIO_PinSource11
 #define TB6612FNG_PIN_D_ALL_CLK             (TB6612FNG_DIN1_GPIO_CLK | TB6612FNG_DIN2_GPIO_CLK | TB6612FNG_PWMD_GPIO_CLK)
 
 #define TB6612FNG_GPIO_ALL_CLK              (TB6612FNG_STBY_GPIO_CLK | TB6612FNG_PIN_A_ALL_CLK | TB6612FNG_PIN_B_ALL_CLK | TB6612FNG_PIN_C_ALL_CLK | TB6612FNG_PIN_D_ALL_CLK)
@@ -170,16 +174,27 @@
 #define TB6612FNG_MOTOR_B                   0x02
 #define TB6612FNG_MOTOR_C                   0x04
 #define TB6612FNG_MOTOR_D                   0x08
+#define TB6612FNG_MOTOR_ALL                 0x0F
 /**
  * @}
  */
 
+/** 
+ * @defgroup TB6612FNG_select
+ * @{
+ */
+#define TB6612FNG_A                         0x01
+#define TB6612FNG_B                         0x02
+#define TB6612FNG_BOTH                      0x03
+/**
+ * @}
+ */
 
 void TB6612FNG_Init(void);
 void TB6612FNG_RunPercentage(uint8_t motorX, float speedPercentage);
 void TB6612FNG_Run(uint8_t motorX, int32_t pwmPulse);
 void TB6612FNG_Stop(uint8_t motorX);
-void RB6612FNG_Sleep(void);
+void TB6612FNG_Sleep(uint8_t driverX);
 
 /**
  * @}

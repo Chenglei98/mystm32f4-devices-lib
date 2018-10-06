@@ -26,7 +26,7 @@ int main(void)
     OLED_DisplayLog(&oledHandle, "ok\r\ndelay\t\t\t\t");
     OLED_DisplayLog(&oledHandle, "ok\r\niniting control...\r\n");
     CONTROL_Init();
-
+    CONTROL_SetSpeed(CONTROL_MOTOR_ALL ,500);
     while(1)
     {
         //OLED_DisplayFormat(&oledHandle, "abcdefghijklmnopqrstuvwxy\r\n\r\nzabcde\ti\r\njklmnopqrstuvwxyzabcpqrstuvwxyzabc!");
